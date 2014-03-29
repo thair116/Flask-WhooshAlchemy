@@ -145,6 +145,8 @@ class _Searcher(object):
         if fields is None:
             fields = self._all_fields
 
+        from whoosh.qparser import plugins
+
         plugins = [plugins.WhitespacePlugin(),
                 plugins.SingleQuotePlugin(),
                 plugins.FieldsPlugin(),
