@@ -99,7 +99,7 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
         parameter to ``True``.
 
         '''
-            
+
         if not isinstance(query, unicode):
             query = unicode(query)
 
@@ -145,14 +145,25 @@ class _Searcher(object):
         if fields is None:
             fields = self._all_fields
 
+        plugins = [plugins.WhitespacePlugin(),
+                plugins.SingleQuotePlugin(),
+                plugins.FieldsPlugin(),
+                plugins.PhrasePlugin(),
+                plugins.RangePlugin(),
+                plugins.GroupPlugin(),
+                plugins.OperatorsPlugin(),
+                plugins.BoostPlugin(),
+                plugins.EveryPlugin(),
+                ]
+
         group = OrGroup if or_ else AndGroup
-        parser = MultifieldParser(fields, self._index.schema, group=group)
+        parser = MultifieldParser(fields, self._index.schema, group=group, plugins=plugins)
         return self._index.searcher().search(parser.parse(query),
                 limit=limit)
 
 
 def whoosh_index(app, model):
-    ''' Create whoosh index for ``model``, if one does not exist. If 
+    ''' Create whoosh index for ``model``, if one does not exist. If
     the index exists it is opened and cached. '''
 
     # gets the whoosh index for this model, creating one if it does not exist.
@@ -198,7 +209,7 @@ def _create_index(app, model):
 
     # change the query class of this model to our own
     model.query_class = _QueryProxy
-    
+
     return indx
 
 
@@ -266,5 +277,5 @@ flask_sqlalchemy.models_committed.connect(_after_flush)
 #     app = db.get_app()
 # #    for table in db.get_tables_for_bind():
 #     for item in globals():
-# 
+#
 #        #_create_index(app, table)
