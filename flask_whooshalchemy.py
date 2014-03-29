@@ -141,22 +141,25 @@ class _Searcher(object):
         self._all_fields = list(set(indx.schema._fields.keys()) -
                 set([self.primary_key_name]))
 
-    def __call__(self, query, limit=None, fields=None, or_=False):
+    def __call__(self, query, limit=None, fields=None, or_=False, wildcards=False):
         if fields is None:
             fields = self._all_fields
 
         from whoosh.qparser import plugins
 
-        plugins = [plugins.WhitespacePlugin(),
-                plugins.SingleQuotePlugin(),
-                plugins.FieldsPlugin(),
-                plugins.PhrasePlugin(),
-                plugins.RangePlugin(),
-                plugins.GroupPlugin(),
-                plugins.OperatorsPlugin(),
-                plugins.BoostPlugin(),
-                plugins.EveryPlugin(),
-                ]
+        if not wildcards:
+            plugins = [plugins.WhitespacePlugin(),
+                    plugins.SingleQuotePlugin(),
+                    plugins.FieldsPlugin(),
+                    plugins.PhrasePlugin(),
+                    plugins.RangePlugin(),
+                    plugins.GroupPlugin(),
+                    plugins.OperatorsPlugin(),
+                    plugins.BoostPlugin(),
+                    plugins.EveryPlugin(),
+                    ]
+        else:
+            plugins = None # use default set which includes wildards
 
         group = OrGroup if or_ else AndGroup
         parser = MultifieldParser(fields, self._index.schema, group=group, plugins=plugins)
