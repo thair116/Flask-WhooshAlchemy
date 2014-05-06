@@ -255,7 +255,7 @@ def _after_flush(app, changes):
     for model, values in bytype.iteritems():
         index = whoosh_index(app, values[0][1].__class__)
         from whoosh.writing import AsyncWriter
-        with AsyncWriter(myindex) as writer:
+        with AsyncWriter(index) as writer:
             primary_field = values[0][1].pure_whoosh.primary_key_name
             searchable = values[0][1].__searchable__
 
